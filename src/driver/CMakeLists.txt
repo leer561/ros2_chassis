@@ -13,14 +13,18 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
-add_executable(subscriber src/subscriber.cpp)
-ament_target_dependencies(subscriber rclcpp std_msgs)
+add_executable(base_driver src/base_driver.cpp)
+ament_target_dependencies(base_driver rclcpp geometry_msgs std_msgs)
 
+add_executable(talker src/talker.cpp)
+ament_target_dependencies(talker rclcpp geometry_msgs std_msgs)
 
 install(TARGETS
-  subscriber
-  DESTINATION lib/${PROJECT_NAME}
+  base_driver
+  talker
+  DESTINATION lib/${PROJECT_NAME} 
 )
 
 ament_package()
