@@ -8,7 +8,7 @@
 #include <asio.hpp>
 
 using namespace asio; //定义一个命名空间，用于后面的读写操作
-unsigned char buf[24];
+unsigned char buf[7];
 
 //转速转换比例，执行速度调整比例
 float get_coef(float item)
@@ -51,7 +51,7 @@ class BaseDriver : public rclcpp::Node
 
             //写入数据到串口
             io_service iosev;
-            serial_port sp(iosev, "/dev/ttyUSB0"); //定义传输的串口
+            serial_port sp(iosev, "/dev/motor_trd"); //定义传输的串口
             sp.set_option(serial_port::baud_rate(38400));
             write(sp, buffer(speed_data, 7));
 
