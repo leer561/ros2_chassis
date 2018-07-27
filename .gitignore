@@ -11,5 +11,6 @@ reports/
 build/
 install/
 log/
+src/asio-1.12.1/
 
 .vscode/

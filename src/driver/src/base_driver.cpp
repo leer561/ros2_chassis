@@ -5,7 +5,8 @@
 #include "geometry_msgs/msg/twist.hpp"
 
 //以下为串口通讯需要的头文件
-#include <asio.hpp>
+#define ASIO_STANDALONE
+#include "asio.hpp"
 
 using namespace asio; //定义一个命名空间，用于后面的读写操作
 unsigned char buf[7];
@@ -25,7 +26,7 @@ float get_coef(float item)
     {
         return item;
     }
-};
+}
 float D = 0.39f;                         //两轮间距，单位是m
 float linear_temp = 0, angular_temp = 0; //暂存的线速度和角速度
 
@@ -53,7 +54,11 @@ class BaseDriver : public rclcpp::Node
             io_service iosev;
             serial_port sp(iosev, "/dev/motor_trd"); //定义传输的串口
             sp.set_option(serial_port::baud_rate(38400));
-            write(sp, buffer(speed_data, 7));
+            sp.set_option(serial_port::flow_control(serial_port::flow_control::none));
+            sp.set_option(serial_port::parity(serial_port::parity::none));
+            sp.set_option(serial_port::stop_bits(serial_port::stop_bits::one));
+            sp.set_option(serial_port::character_size(8));
+            write(sp, buffer(speed_data, 8));
 
             RCLCPP_INFO(this->get_logger(), "I heard: [%d]", angular_temp);
             RCLCPP_INFO(this->get_logger(), "speed_data [%d]", vl);
