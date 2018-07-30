@@ -10,6 +10,9 @@
 #include "asio.hpp"
 
 using namespace asio; //定义一个命名空间，用于后面的读写操作
+using namespace std;
+
+unsigned char buf[2];
 
 //转速转换比例，执行速度调整比例
 float get_coef(float item)
@@ -51,12 +54,13 @@ class BaseDriver : public rclcpp::Node
             int speed_data[7] = {0xea, 0x05, 0x7e, vl, vr, 0x00, 0x0d};
 
             //写入数据到串口
+            //设置串口
             io_service iosev;
             serial_port sp(iosev, "/dev/motor_trd"); //定义传输的串口
             sp.set_option(serial_port::baud_rate(38400));
-            sp.set_option(serial_port::flow_control(serial_port::flow_control::none));
-            sp.set_option(serial_port::parity(serial_port::parity::none));
-            sp.set_option(serial_port::stop_bits(serial_port::stop_bits::one));
+            sp.set_option(serial_port::flow_control());
+            sp.set_option(serial_port::parity());
+            sp.set_option(serial_port::stop_bits());
             sp.set_option(serial_port::character_size(8));
             write(sp, buffer(speed_data, 8));
 
@@ -74,7 +78,18 @@ class BaseDriver : public rclcpp::Node
 
 int main(int argc, char *argv[])
 {
+    printf("test the node");
+    //设置串口
+    io_service iosev;
+    serial_port sp(iosev, "/dev/motor_trd"); //定义传输的串口
+    sp.set_option(serial_port::baud_rate(38400));
+    sp.set_option(serial_port::flow_control());
+    sp.set_option(serial_port::parity());
+    sp.set_option(serial_port::stop_bits());
+    sp.set_option(serial_port::character_size(8));
+
     rclcpp::init(argc, argv);
+
     // Create a node.
     auto node = std::make_shared<BaseDriver>();
 
@@ -83,21 +98,14 @@ int main(int argc, char *argv[])
     rclcpp::spin(node);
     rclcpp::shutdown();
 
-    //写入数据到串口
-    io_service iosev;
-    serial_port sp(iosev, "/dev/motor_trd"); //定义传输的串口
-    sp.set_option(serial_port::baud_rate(38400));
-    sp.set_option(serial_port::flow_control(serial_port::flow_control::none));
-    sp.set_option(serial_port::parity(serial_port::parity::none));
-    sp.set_option(serial_port::stop_bits(serial_port::stop_bits::one));
-    sp.set_option(serial_port::character_size(8));
-    bool is_open = sp.is_open();
-    printf("is_open= %s\n", is_open);
-    // 向串口读数据
-    char buf[1];
-    read(sp, buffer(buf));
-    printf("buf[0]= %c\n", buf[0]);
+    while (rclcpp::ok())
+    {
+        read(sp, buffer(buf));
+        string str(&buf[0], &buf[2]); //将数组转化为字符串
+        printf("Read data %s", str.c_str());
+    }
 
     iosev.run();
+
     return 0;
 }
