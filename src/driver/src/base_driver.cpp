@@ -1,15 +1,17 @@
 #include <memory>
 #include <string>
+#include <iostream>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 
 //以下为串口通讯需要的头文件
-#define ASIO_STANDALONE
-#include "asio.hpp"
+#include <QString>
+#include <QSerialPort>
+//#include "serial/serialport.h"
+//#include "timer/mytimer.h"
 
-using namespace asio; //定义一个命名空间，用于后面的读写操作
 using namespace std;
 
 unsigned char buf[2];
@@ -52,20 +54,9 @@ class BaseDriver : public rclcpp::Node
 
             //组合协议
             int speed_data[7] = {0xea, 0x05, 0x7e, vl, vr, 0x00, 0x0d};
-
-            //写入数据到串口
-            //设置串口
-            io_service iosev;
-            serial_port sp(iosev, "/dev/motor_trd"); //定义传输的串口
-            sp.set_option(serial_port::baud_rate(38400));
-            sp.set_option(serial_port::flow_control());
-            sp.set_option(serial_port::parity());
-            sp.set_option(serial_port::stop_bits());
-            sp.set_option(serial_port::character_size(8));
-            write(sp, buffer(speed_data, 8));
-
             RCLCPP_INFO(this->get_logger(), "I heard: [%d]", angular_temp);
             RCLCPP_INFO(this->get_logger(), "speed_data vl [%d]", vl);
+
             RCLCPP_INFO(this->get_logger(), "speed_data vr [%d]", vr);
         };
 
@@ -75,37 +66,37 @@ class BaseDriver : public rclcpp::Node
   private:
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;
 };
-
 int main(int argc, char *argv[])
+
 {
-    printf("test the node");
-    //设置串口
-    io_service iosev;
-    serial_port sp(iosev, "/dev/motor_trd"); //定义传输的串口
-    sp.set_option(serial_port::baud_rate(38400));
-    sp.set_option(serial_port::flow_control());
-    sp.set_option(serial_port::parity());
-    sp.set_option(serial_port::stop_bits());
-    sp.set_option(serial_port::character_size(8));
+    // rclcpp::init(argc, argv);
 
-    rclcpp::init(argc, argv);
+    // // Create a node.
+    // auto node = std::make_shared<BaseDriver>();
 
-    // Create a node.
-    auto node = std::make_shared<BaseDriver>();
+    // // spin will block until work comes in, execute work as it becomes available, and keep blocking.
+    // // It will only be interrupted by Ctrl-C.
+    // rclcpp::spin(node);
+    // rclcpp::shutdown();
 
-    // spin will block until work comes in, execute work as it becomes available, and keep blocking.
-    // It will only be interrupted by Ctrl-C.
-    rclcpp::spin(node);
-    rclcpp::shutdown();
+    // QT写入数据测试
+    QString qstr = "Hello";
+    QString name = "/dev/motor_trd";
 
-    while (rclcpp::ok())
-    {
-        read(sp, buffer(buf));
-        string str(&buf[0], &buf[2]); //将数组转化为字符串
-        printf("Read data %s", str.c_str());
-    }
+    QSerialPort *port = new QSerialPort();
+    port->setPortName(name); // 串口名
+    port->open(QIODevice::ReadWrite);
+    port->setBaudRate(38400);                         //波特率
+    port->setDataBits(QSerialPort::Data8);            //数据字节，8字节
+    port->setParity(QSerialPort::NoParity);           //校验，无
+    port->setFlowControl(QSerialPort::NoFlowControl); //数据流控制,无
+    port->setStopBits(QSerialPort::OneStop);          //一位停止位
 
-    iosev.run();
+    port->write(qstr.toLatin1());
+    // class serialport *myPort = new serialport();
+    // myPort->InitSerialPort(name, 38400);
+    // myPort->SendMsgToPort(qstr);
+    // MyTimer timer;
 
     return 0;
 }
