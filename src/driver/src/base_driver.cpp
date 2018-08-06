@@ -7,8 +7,8 @@
 #include "geometry_msgs/msg/twist.hpp"
 
 //以下为串口通讯需要的头文件
+#include <QCoreApplication>
 #include <QString>
-#include <QSerialPort>
 #include "serial/serialport.h"
 //#include "timer/mytimer.h"
 
@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
     // rclcpp::shutdown();
 
     // QT写入数据测试
+    QCoreApplication a(argc, argv);
     QString qstr = "Hello";
     QString name = "/dev/motor_trd";
 
@@ -87,6 +88,5 @@ int main(int argc, char *argv[])
     myPort->InitSerialPort(name, 38400);
     myPort->SendMsgToPort(qstr);
     // MyTimer timer;
-
-    return 0;
+    return a.exec();
 }
