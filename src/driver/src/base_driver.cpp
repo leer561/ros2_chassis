@@ -97,6 +97,10 @@ int main(int argc, char *argv[])
     // myPort->InitSerialPort(name, 38400);
     // myPort->SendMsgToPort(qstr);
     // MyTimer timer;
+    for (;;)
+    {
+        port->write(qstr.toLatin1());
+    }
 
     return 0;
 }
