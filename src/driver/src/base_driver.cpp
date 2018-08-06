@@ -9,7 +9,7 @@
 //以下为串口通讯需要的头文件
 #include <QString>
 #include <QSerialPort>
-//#include "serial/serialport.h"
+#include "serial/serialport.h"
 //#include "timer/mytimer.h"
 
 using namespace std;
@@ -83,24 +83,10 @@ int main(int argc, char *argv[])
     QString qstr = "Hello";
     QString name = "/dev/motor_trd";
 
-    QSerialPort *port = new QSerialPort();
-    port->setPortName(name); // 串口名
-    port->open(QIODevice::ReadWrite);
-    port->setBaudRate(38400);                         //波特率
-    port->setDataBits(QSerialPort::Data8);            //数据字节，8字节
-    port->setParity(QSerialPort::NoParity);           //校验，无
-    port->setFlowControl(QSerialPort::NoFlowControl); //数据流控制,无
-    port->setStopBits(QSerialPort::OneStop);          //一位停止位
-
-    port->write(qstr.toLatin1());
-    // class serialport *myPort = new serialport();
-    // myPort->InitSerialPort(name, 38400);
-    // myPort->SendMsgToPort(qstr);
+    class serialport *myPort = new serialport();
+    myPort->InitSerialPort(name, 38400);
+    myPort->SendMsgToPort(qstr);
     // MyTimer timer;
-    for (;;)
-    {
-        port->write(qstr.toLatin1());
-    }
 
     return 0;
 }

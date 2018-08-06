@@ -42,7 +42,10 @@ bool serialport::PortIsOpen()
 void serialport::SendMsgToPort(QString hex)
 {
     if (!port->isOpen())
+    {
+        qDebug() << "not open";
         return;
+    }
 
     port->write(hex.toLatin1());
 }

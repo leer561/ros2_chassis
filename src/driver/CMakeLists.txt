@@ -17,17 +17,13 @@ find_package(geometry_msgs REQUIRED)
 
 find_package(Qt5Core REQUIRED)
 
-add_executable(base_driver src/base_driver.cpp)
+add_executable(base_driver src/base_driver.cpp src/serial/serialport.cpp)
 ament_target_dependencies(base_driver rclcpp geometry_msgs std_msgs)
-
-add_executable(talker src/talker.cpp)
-ament_target_dependencies(talker rclcpp geometry_msgs std_msgs)
 
 qt5_use_modules(base_driver Core SerialPort)
 
 install(TARGETS
   base_driver
-  talker
   DESTINATION lib/${PROJECT_NAME} 
 )
 
