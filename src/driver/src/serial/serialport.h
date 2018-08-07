@@ -10,9 +10,9 @@ class Serialport
     Serialport();
     ~Serialport();
 
-    bool PortIsOpen();           // 判断串口是否打开
-    void SendMsgToPort(QString); // 发送字符串
-    void ClosePort();            // 关闭串口
+    bool PortIsOpen();    // 判断串口是否打开
+    void SendMsgToPort(); // 发送字符串
+    void ClosePort();     // 关闭串口
 
   private:
     QSerialPort *port = NULL;

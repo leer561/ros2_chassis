@@ -32,7 +32,7 @@ bool Serialport::PortIsOpen()
 }
 
 // 发送字符串
-void Serialport::SendMsgToPort(QString hex)
+void Serialport::SendMsgToPort()
 {
     if (!port->isOpen())
     {
@@ -40,8 +40,17 @@ void Serialport::SendMsgToPort(QString hex)
         return;
     }
     qDebug() << "port open mode" << port->openMode();
-    auto data = port->write(hex.toLatin1());
+    QByteArray ba;
+    ba.resize(5);
+    ba[0] = 0xea;
+    ba[1] = 0x03;
+    ba[2] = 0x50;
+    ba[3] = 0x00;
+    ba[4] = 0x0d;
+    auto data = port->write(ba);
     qDebug() << "write data " << data;
+    QString qstr = "Hello";
+    port->write(qstr.toLatin1());
 }
 // 关闭串口
 void Serialport::ClosePort()

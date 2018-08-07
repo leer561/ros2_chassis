@@ -1,19 +1,18 @@
 #include "mytimer.h"
 #include <QDebug>
+#include <QTimer>
+#include <QObject>
 
-MyTimer::MyTimer()
+MyTimer::MyTimer(QObject *parent) : QObject(parent)
 {
-    // create a timer
-    timer = new QTimer(this);
-
-    // setup signal and slot
-    connect(timer, SIGNAL(timeout()), this, SLOT(MyTimerSlot()));
-
-    // msec
-    timer->start(1000);
+    // connect the timer's timeout to our TimerHandlerFunction
+    connect(&m_timer, SIGNAL(timout()), this, SLOT(TimerHandlerFunction()));
+}
+MyTimer::~MyTimer()
+{
 }
 
-void MyTimer::MyTimerSlot()
+void MyTimer::TimerHandlerFunction()
 {
-    qDebug() << "Timer...";
+    qDebug() << "mytimer";
 }

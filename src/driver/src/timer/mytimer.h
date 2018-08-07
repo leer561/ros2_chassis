@@ -1,17 +1,17 @@
-#ifndef MYTIMER_H
-#define MYTIMER_H
-
+#include <QObject>
 #include <QTimer>
 
 class MyTimer : public QObject
 {
     Q_OBJECT
+
   public:
-    MyTimer();
-    QTimer *timer;
+    MyTimer(QObject *parent);
+    ~MyTimer();
 
   public slots:
-    void MyTimerSlot();
-};
+    void TimerHandlerFunction();
 
-#endif // MYTIMER_H
+  private:
+    QTimer m_timer;
+};

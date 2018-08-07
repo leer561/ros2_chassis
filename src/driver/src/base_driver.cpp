@@ -10,7 +10,8 @@
 #include <QCoreApplication>
 #include <QString>
 #include "serial/serialport.h"
-//#include "timer/mytimer.h"
+#include <QDebug>
+#include <QTimer>
 
 using namespace std;
 
@@ -66,6 +67,12 @@ class BaseDriver : public rclcpp::Node
   private:
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;
 };
+
+void update(Serialport *myPort)
+{
+    myPort->SendMsgToPort();
+}
+
 int main(int argc, char *argv[])
 
 {
@@ -81,10 +88,15 @@ int main(int argc, char *argv[])
 
     // QT写入数据测试
     QCoreApplication a(argc, argv);
-    QString qstr = "Hello";
 
     class Serialport *myPort = new Serialport();
-    myPort->SendMsgToPort(qstr);
-    // MyTimer timer;
+    myPort->SendMsgToPort();
+
+    QTimer timer;
+    QObject::connect(&timer, &QTimer::timeout, [&]() { myPort->SendMsgToPort(); });
+    timer.start(1000);
+
+    //class MyTimer *timer = new MyTimer(&a);
+    //timer->MyTimer();
     return a.exec();
 }
