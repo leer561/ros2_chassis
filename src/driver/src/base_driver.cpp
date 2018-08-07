@@ -82,10 +82,8 @@ int main(int argc, char *argv[])
     // QT写入数据测试
     QCoreApplication a(argc, argv);
     QString qstr = "Hello";
-    QString name = "/dev/motor_trd";
 
-    class serialport *myPort = new serialport();
-    myPort->InitSerialPort(name, 38400);
+    class Serialport *myPort = new Serialport();
     myPort->SendMsgToPort(qstr);
     // MyTimer timer;
     return a.exec();

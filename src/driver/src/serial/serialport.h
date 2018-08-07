@@ -4,13 +4,11 @@
 // 端口管理
 #include <QSerialPort>
 #include <QString>
-class serialport
+class Serialport
 {
   public:
-    serialport();
-    ~serialport();
-
-    QSerialPort *InitSerialPort(QString, int); // 初始化串口
+    Serialport();
+    ~Serialport();
 
     bool PortIsOpen();           // 判断串口是否打开
     void SendMsgToPort(QString); // 发送字符串
