@@ -1,102 +1,30 @@
-#include <memory>
-#include <string>
-#include <iostream>
-
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
-#include "geometry_msgs/msg/twist.hpp"
-
 //以下为串口通讯需要的头文件
 #include <QCoreApplication>
-#include <QString>
-#include "serial/serialport.h"
-#include <QDebug>
-#include <QTimer>
+#include "serial-port/serial-port.h"
 
-using namespace std;
+// 以下为ros node头文件
+#include "driver-node/driver-node.h"
+#include "rclcpp/rclcpp.hpp"
 
-unsigned char buf[2];
-
-//转速转换比例，执行速度调整比例
-float get_coef(float item)
-{
-    if (item > 255)
-    {
-        return 255;
-    }
-    else if (item < 0)
-    {
-        return 0;
-    }
-    else
-    {
-        return item;
-    }
-}
-float D = 0.39f;                         //两轮间距，单位是m
-float linear_temp = 0, angular_temp = 0; //暂存的线速度和角速度
-
-class BaseDriver : public rclcpp::Node
-{
-  public:
-    BaseDriver() : Node("base_driver")
-    {
-        auto callback = [this](const geometry_msgs::msg::Twist::SharedPtr msg) -> void {
-            //获取角速度,rad/s 线速度 m/s
-            angular_temp = get_coef(msg->angular.z);
-            linear_temp = get_coef(msg->linear.x);
-
-            //将转换好的小车速度分量为左右轮速度
-            float left_speed = linear_temp - 0.5f * angular_temp * D;
-            float right_speed = linear_temp + 0.5f * angular_temp * D;
-
-            int vl = (int)left_speed;
-            int vr = (int)right_speed;
-
-            //组合协议
-            int speed_data[7] = {0xea, 0x05, 0x7e, vl, vr, 0x00, 0x0d};
-            RCLCPP_INFO(this->get_logger(), "I heard: [%d]", angular_temp);
-            RCLCPP_INFO(this->get_logger(), "speed_data vl [%d]", vl);
-
-            RCLCPP_INFO(this->get_logger(), "speed_data vr [%d]", vr);
-        };
-
-        sub_ = create_subscription<geometry_msgs::msg::Twist>("cmd_vel", callback, rmw_qos_profile_sensor_data);
-    }
-
-  private:
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;
-};
-
-void update(Serialport *myPort)
-{
-    myPort->SendMsgToPort();
-}
+// 智能指针
+#include <memory>
 
 int main(int argc, char *argv[])
 
 {
-    // rclcpp::init(argc, argv);
-
-    // // Create a node.
-    // auto node = std::make_shared<BaseDriver>();
-
-    // // spin will block until work comes in, execute work as it becomes available, and keep blocking.
-    // // It will only be interrupted by Ctrl-C.
-    // rclcpp::spin(node);
-    // rclcpp::shutdown();
-
-    // QT写入数据测试
+    rclcpp::init(argc, argv);
     QCoreApplication a(argc, argv);
 
-    class Serialport *myPort = new Serialport();
-    myPort->SendMsgToPort();
+    // 生成串口
+    class SerialPort *myPort = new SerialPort();
 
-    QTimer timer;
-    QObject::connect(&timer, &QTimer::timeout, [&]() { myPort->SendMsgToPort(); });
-    timer.start(1000);
+    // Create a node.
+    auto node = std::make_shared<DriverNode>(myPort);
 
-    //class MyTimer *timer = new MyTimer(&a);
-    //timer->MyTimer();
+    // spin will block until work comes in, execute work as it becomes
+    // It will only be interrupted by Ctrl-C.
+    rclcpp::spin(node);
+    rclcpp::shutdown();
+
     return a.exec();
 }

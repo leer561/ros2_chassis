@@ -1,9 +1,9 @@
-#include "serialport.h"
-#include <QSerialPort>
-#include <QString>
+#include "serial-port.h"
+#include <QByteArray>
 #include <QDebug>
+#include <QSerialPort>
 
-Serialport::Serialport()
+SerialPort::SerialPort()
 {
     //对串口进行一些初始化
     port = new QSerialPort();
@@ -16,13 +16,10 @@ Serialport::Serialport()
     port->setStopBits(QSerialPort::OneStop);          //一位停止位
 }
 
-Serialport::~Serialport()
-{
-    delete port;
-}
+SerialPort::~SerialPort() { delete port; }
 
 // 串口运行状态
-bool Serialport::PortIsOpen()
+bool SerialPort::PortIsOpen()
 {
     // 如果对象port还没实例化
     if (port == NULL)
@@ -31,29 +28,23 @@ bool Serialport::PortIsOpen()
     return port->isOpen();
 }
 
-// 发送字符串
-void Serialport::SendMsgToPort()
+// 发送命令
+char SerialPort::SendMsgToPort(const int *cmd, const int size)
 {
     if (!port->isOpen())
     {
-        qDebug() << "not open";
-        return;
+        qDebug() << "port not open";
+        return -1;
     }
-    qDebug() << "port open mode" << port->openMode();
-    QByteArray ba;
-    ba.resize(5);
-    ba[0] = 0xea;
-    ba[1] = 0x03;
-    ba[2] = 0x50;
-    ba[3] = 0x00;
-    ba[4] = 0x0d;
-    auto data = port->write(ba);
-    qDebug() << "write data " << data;
-    QString qstr = "Hello";
-    port->write(qstr.toLatin1());
+    // 转换cmd数据为QByteArray
+    QByteArray data;
+    data.resize(size);
+    for (int i = 0; i < size; ++i)
+    {
+        data[i] = cmd[i];
+    }
+    qDebug() << "cmd data" << data;
+    return port->write(data);
 }
 // 关闭串口
-void Serialport::ClosePort()
-{
-    port->close();
-}
+void SerialPort::ClosePort() { port->close(); }
