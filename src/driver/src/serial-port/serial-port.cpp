@@ -2,6 +2,7 @@
 #include <QByteArray>
 #include <QDebug>
 #include <QSerialPort>
+#include <vector>
 
 SerialPort::SerialPort()
 {
@@ -29,24 +30,17 @@ bool SerialPort::PortIsOpen()
 }
 
 // 发送命令
-char SerialPort::SendMsgToPort(const int *cmd, const int size)
+char SerialPort::SendMsgToPort(const std::vector<int> &cmd)
 {
     // 转换cmd数据为QByteArray
     QByteArray data;
+    int size = cmd.size();
     data.resize(size);
     for (int i = 0; i < size; i++)
     {
-        data[i] = *(cmd + i);
+        data[i] = cmd[i];
     }
     qDebug() << "cmd data" << data;
-    // QByteArray ba;
-    // ba.resize(5);
-    // ba[0] = 0xea;
-    // ba[1] = 0x03;
-    // ba[2] = 0x50;
-    // ba[3] = 0x00;
-    // ba[4] = 0x0d;
-    // qDebug() << "ba ba" << ba;
 
     if (!port->isOpen())
     {

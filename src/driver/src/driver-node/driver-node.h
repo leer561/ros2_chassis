@@ -16,8 +16,8 @@ class DriverNode : public rclcpp::Node
   private:
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;
     float D = 0.39f; //两轮间距，单位是m
-    float linear_temp = 0;
-    float angular_temp = 0; //暂存的线速度和角速度
+    float linearTemp = 0;
+    float angularTemp = 0; //暂存的线速度和角速度
 };
 
 #endif // DriverNode

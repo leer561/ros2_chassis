@@ -2,16 +2,18 @@
 #define SERIALPORT_H
 
 // 端口管理
+#include <vector>
 #include <QSerialPort>
+
 class SerialPort
 {
   public:
     SerialPort();
     ~SerialPort();
 
-    bool PortIsOpen();                          // 判断串口是否打开
-    char SendMsgToPort(const int *, const int); // 发送命令
-    void ClosePort();                           // 关闭串口
+    bool PortIsOpen();                            // 判断串口是否打开
+    char SendMsgToPort(const std::vector<int> &); // 发送命令
+    void ClosePort();                             // 关闭串口
 
   private:
     QSerialPort *port = nullptr;

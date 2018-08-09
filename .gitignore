@@ -14,3 +14,4 @@ log/
 src/asio-1.12.1/
 
 .vscode/
+.idea/
