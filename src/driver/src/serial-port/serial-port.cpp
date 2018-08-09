@@ -31,19 +31,28 @@ bool SerialPort::PortIsOpen()
 // 发送命令
 char SerialPort::SendMsgToPort(const int *cmd, const int size)
 {
+    // 转换cmd数据为QByteArray
+    QByteArray data;
+    data.resize(size);
+    for (int i = 0; i < size; i++)
+    {
+        data[i] = *(cmd + i);
+    }
+    qDebug() << "cmd data" << data;
+    // QByteArray ba;
+    // ba.resize(5);
+    // ba[0] = 0xea;
+    // ba[1] = 0x03;
+    // ba[2] = 0x50;
+    // ba[3] = 0x00;
+    // ba[4] = 0x0d;
+    // qDebug() << "ba ba" << ba;
+
     if (!port->isOpen())
     {
         qDebug() << "port not open";
         return -1;
     }
-    // 转换cmd数据为QByteArray
-    QByteArray data;
-    data.resize(size);
-    for (int i = 0; i < size; ++i)
-    {
-        data[i] = cmd[i];
-    }
-    qDebug() << "cmd data" << data;
     return port->write(data);
 }
 // 关闭串口
