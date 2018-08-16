@@ -8,17 +8,17 @@ namespace driverNodeUtil
 // 转速转换比例，执行速度调整比例
 float GetCoef(float item)
 {
-    if (item > 255)
+    if (item > 128)
     {
-        return 255;
+        return 256;
     }
-    else if (item < 0)
+    else if (item < -128)
     {
         return 0;
     }
     else
     {
-        return item;
+        return item + 128;
     }
 };
 

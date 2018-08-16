@@ -1,6 +1,6 @@
 //以下为串口通讯需要的头文件
 #include <QCoreApplication>
-#include "serial-port/serial-port.h"
+#include "serial-port/serial-controller.h"
 
 // 以下为ros node头文件
 #include "driver-node/driver-node.h"
@@ -12,12 +12,13 @@
 int main(int argc, char *argv[])
 
 {
-    rclcpp::init(argc, argv);
     QCoreApplication a(argc, argv);
 
-    // 生成串口
-    class SerialPort *myPort = new SerialPort();
+    // 生成串口控制器
+    class SerialController *myPort = new SerialController();
+    myPort->init();
 
+    rclcpp::init(argc, argv);
     // Create a node.
     auto node = std::make_shared<DriverNode>(myPort);
 

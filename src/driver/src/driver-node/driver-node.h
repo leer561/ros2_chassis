@@ -2,7 +2,7 @@
 #define SERIALPORT_H
 
 // 串口文件
-#include "../serial-port/serial-port.h"
+#include "../serial-port/serial-controller.h"
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -11,7 +11,7 @@
 class DriverNode : public rclcpp::Node
 {
   public:
-    DriverNode(SerialPort *);
+    DriverNode(SerialController *);
 
   private:
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;

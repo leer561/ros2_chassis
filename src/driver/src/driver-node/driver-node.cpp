@@ -1,5 +1,5 @@
 // 串口文件
-#include "../serial-port/serial-port.h"
+#include "../serial-port/serial-controller.h"
 
 #include "driver-node.h"
 #include "util.cpp"
@@ -10,7 +10,7 @@
 
 #include <vector>
 
-DriverNode::DriverNode(SerialPort *myPort) : Node("base_driver")
+DriverNode::DriverNode(SerialController *myPort) : Node("base_driver")
 {
     auto callback = [this, myPort](const geometry_msgs::msg::Twist::SharedPtr msg) -> void {
         // 获取角速度,rad/s 线速度 m/s

@@ -10,6 +10,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed
+set(CMAKE_AUTOMOC ON)
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -17,7 +22,7 @@ find_package(geometry_msgs REQUIRED)
 
 find_package(Qt5Core REQUIRED)
 
-add_executable(base_driver src/base_driver.cpp src/serial-port/serial-port.cpp src/driver-node/driver-node.cpp)
+add_executable(base_driver src/base_driver.cpp src/serial-port/serial-controller.cpp src/serial-port/serial-port.cpp src/driver-node/driver-node.cpp)
 ament_target_dependencies(base_driver rclcpp geometry_msgs std_msgs)
 
 qt5_use_modules(base_driver Core SerialPort)
