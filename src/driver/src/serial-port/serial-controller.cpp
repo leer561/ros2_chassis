@@ -13,6 +13,7 @@ SerialController::~SerialController()
     workerThread.quit();
     workerThread.wait();
 };
+
 void SerialController::SendMsgToPort(const std::vector<int> &cmd)
 {
     // 转换cmd数据为QByteArray
@@ -26,11 +27,18 @@ void SerialController::SendMsgToPort(const std::vector<int> &cmd)
     qDebug() << "cmd data" << data;
     emit write(data);
 };
+
 void SerialController::init()
 {
     SerialPort *port = new SerialPort;
     port->moveToThread(&workerThread);
     connect(&workerThread, &QThread::finished, port, &QObject::deleteLater);
-    connect(this, &SerialController::write, port, &SerialPort::SendMsgToPort);
+    connect(this, &SerialController::write, port, &SerialPort::write);
     workerThread.start();
+};
+
+//接收读取的数据
+void SerialController::getReadMsg(const QByteArray &data)
+{
+    qDebug() << "getReadMsg data" << data;
 }

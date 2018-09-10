@@ -12,16 +12,20 @@ class SerialPort : public QObject
   public:
     SerialPort();
     ~SerialPort();
+    bool portIsOpen(); // 判断串口是否打开
+    void closePort();  // 关闭串口
 
-    bool PortIsOpen(); // 判断串口是否打开
-    void ClosePort();  // 关闭串口
+  signals:
+    void sendReadMsg(const QByteArray &);
+
   public slots:
-    void SendMsgToPort(const QByteArray &); // 发送命令
+    void write(const QByteArray &); // 发送命令
+    void read();                    // 读取数据
 
   private:
     QSerialPort *port = nullptr;
     bool potStatu = true;
-    char buf[80];
+    QByteArray readData;
 };
 
 #endif // SERIALPORT_H
