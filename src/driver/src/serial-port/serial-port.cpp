@@ -5,6 +5,12 @@
 
 SerialPort::SerialPort()
 {
+}
+
+SerialPort::~SerialPort() { delete port; }
+
+void SerialPort::init()
+{
     //对串口进行一些初始化
     port = new QSerialPort();
     port->setPortName("/dev/ttyUSB1"); // 串口名
@@ -18,8 +24,6 @@ SerialPort::SerialPort()
     // 绑定readyread
     connect(port, &QSerialPort::readyRead, this, &SerialPort::read);
 }
-
-SerialPort::~SerialPort() { delete port; }
 
 // 串口运行状态
 bool SerialPort::portIsOpen()

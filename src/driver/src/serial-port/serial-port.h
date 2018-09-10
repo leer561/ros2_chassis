@@ -19,6 +19,7 @@ class SerialPort : public QObject
     void sendReadMsg(const QByteArray &);
 
   public slots:
+    void init();
     void write(const QByteArray &); // 发送命令
     void read();                    // 读取数据
 

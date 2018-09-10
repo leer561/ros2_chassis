@@ -23,5 +23,6 @@ class SerialController : public QObject
 
   signals:
     void write(const QByteArray &);
+    void start();
 };
 #endif // SERIALCONTROLLER_H

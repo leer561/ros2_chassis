@@ -12,7 +12,7 @@ SerialController::~SerialController()
 {
     workerThread.quit();
     workerThread.wait();
-};
+}
 
 void SerialController::SendMsgToPort(const std::vector<int> &cmd)
 {
@@ -26,7 +26,7 @@ void SerialController::SendMsgToPort(const std::vector<int> &cmd)
     };
     qDebug() << "cmd data" << data;
     emit write(data);
-};
+}
 
 void SerialController::init()
 {
@@ -34,8 +34,10 @@ void SerialController::init()
     port->moveToThread(&workerThread);
     connect(&workerThread, &QThread::finished, port, &QObject::deleteLater);
     connect(this, &SerialController::write, port, &SerialPort::write);
+    connect(this, &SerialController::start, port, &SerialPort::init);
     workerThread.start();
-};
+    emit start();
+}
 
 //接收读取的数据
 void SerialController::getReadMsg(const QByteArray &data)
