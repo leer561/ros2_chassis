@@ -35,6 +35,7 @@ void SerialController::init()
     connect(&workerThread, &QThread::finished, port, &QObject::deleteLater);
     connect(this, &SerialController::write, port, &SerialPort::write);
     connect(this, &SerialController::start, port, &SerialPort::init);
+    connect(port, &SerialPort::sendReadMsg, this, &SerialController::getReadMsg);
     workerThread.start();
     emit start();
 }
