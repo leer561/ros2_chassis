@@ -1,5 +1,6 @@
 #include "serial-port.h"
 #include <QByteArray>
+#include <QDataStream>
 #include <QDebug>
 #include <QSerialPort>
 
@@ -51,6 +52,10 @@ void SerialPort::read()
 {
     readData = port->readAll();
     qDebug() << "readData" << readData;
+    QDataStream dataStream(readData);
+    quint16 result;
+    dataStream >> result;
+    qDebug() << "readData 16bit" << result;
     emit sendReadMsg(readData);
 }
 

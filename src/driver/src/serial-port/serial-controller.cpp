@@ -44,4 +44,10 @@ void SerialController::init()
 void SerialController::getReadMsg(const QByteArray &data)
 {
     qDebug() << "getReadMsg data" << data;
+    // 读取判断数据 长度小于14不读
+    if (data.size() < 14)
+        return;
+    // 判断头部 不是0xEA 返回
+    if (data[0] != 'xEA')
+        return;
 }

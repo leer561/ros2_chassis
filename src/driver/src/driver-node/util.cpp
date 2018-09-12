@@ -18,7 +18,7 @@ float GetCoef(float item)
     }
     else
     {
-        return item + 128;
+        return static_cast<int>(item + 128);
     }
 };
 

@@ -18,13 +18,13 @@ DriverNode::DriverNode(SerialController *myPort) : Node("base_driver")
         float linearTemp = msg->linear.x;
 
         // 将转换好的小车速度分量为左右轮速度
-        float leftSpeed = driverNodeUtil::GetCoef(linearTemp - 0.5f * angularTemp * D);
-        float rightSpeed = driverNodeUtil::GetCoef(linearTemp + 0.5f * angularTemp * D);
+        int leftSpeed = driverNodeUtil::GetCoef(linearTemp - 0.5f * angularTemp * D);
+        int rightSpeed = driverNodeUtil::GetCoef(linearTemp + 0.5f * angularTemp * D);
 
         // 获取setSpeed 协议
         std::vector<int> speedData = {0xea, 0x05, 0x7e, 0x80, 0x80, 0x00, 0x0d};
-        speedData[3] = static_cast<int>(leftSpeed);
-        speedData[4] = static_cast<int>(rightSpeed);
+        speedData[3] = leftSpeed;
+        speedData[4] = rightSpeed;
 
         // 异或检验
         speedData[5] = (((speedData[0] ^ speedData[2]) ^ speedData[3]) ^ speedData[4]) ^ speedData[6];
