@@ -24,7 +24,7 @@ void SerialController::SendMsgToPort(const std::vector<int> &cmd)
     {
         data[i] = cmd[i];
     };
-    qDebug() << "cmd data" << data;
+    qDebug() << "cmd data" << cmd;
     emit write(data);
 }
 

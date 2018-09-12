@@ -13,13 +13,14 @@ void SerialPort::init()
 {
     //对串口进行一些初始化
     port = new QSerialPort();
-    port->setPortName("/dev/ttyUSB1"); // 串口名
+    port->setPortName("/dev/ttyUSB0"); // 串口名
     port->open(QIODevice::ReadWrite);
     port->setBaudRate(QSerialPort::Baud38400);        //波特率
     port->setDataBits(QSerialPort::Data8);            //数据字节，8字节
     port->setParity(QSerialPort::NoParity);           //校验，无
     port->setFlowControl(QSerialPort::NoFlowControl); //数据流控制,无
     port->setStopBits(QSerialPort::OneStop);          //一位停止位
+    port->setReadBufferSize(23);
 
     // 绑定readyread
     connect(port, &QSerialPort::readyRead, this, &SerialPort::read);
