@@ -1,8 +1,9 @@
 #include "serial-port.h"
 #include <QByteArray>
-#include <QDataStream>
 #include <QDebug>
 #include <QSerialPort>
+
+#include <vector>
 
 SerialPort::SerialPort()
 {
@@ -21,7 +22,6 @@ void SerialPort::init()
     port->setParity(QSerialPort::NoParity);           //校验，无
     port->setFlowControl(QSerialPort::NoFlowControl); //数据流控制,无
     port->setStopBits(QSerialPort::OneStop);          //一位停止位
-    port->setReadBufferSize(23);
 
     // 绑定readyread
     connect(port, &QSerialPort::readyRead, this, &SerialPort::read);
@@ -52,10 +52,6 @@ void SerialPort::read()
 {
     readData = port->readAll();
     qDebug() << "readData" << readData;
-    QDataStream dataStream(readData);
-    quint16 result;
-    dataStream >> result;
-    qDebug() << "readData 16bit" << result;
     emit sendReadMsg(readData);
 }
 

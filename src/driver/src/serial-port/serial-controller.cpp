@@ -24,7 +24,7 @@ void SerialController::SendMsgToPort(const std::vector<int> &cmd)
     {
         data[i] = cmd[i];
     };
-    qDebug() << "cmd data" << cmd;
+    qDebug() << "cmd data" << data;
     emit write(data);
 }
 
@@ -43,11 +43,17 @@ void SerialController::init()
 //接收读取的数据
 void SerialController::getReadMsg(const QByteArray &data)
 {
-    qDebug() << "getReadMsg data" << data;
     // 读取判断数据 长度小于14不读
     if (data.size() < 14)
         return;
-    // 判断头部 不是0xEA 返回
-    if (data[0] != 'xEA')
+    // 转换为 unsigned char
+    unsigned char *buffer = (unsigned char *)data.constData();
+    std::vector<unsigned char> bufferToCompress(data.begin(), data.end());
+
+    // 判断头部 不是0xEA 即234 返回
+    if (data[0] != 234)
         return;
+
+    // 编码器值
+    encoderData = {data[11], data[12]};
 }
