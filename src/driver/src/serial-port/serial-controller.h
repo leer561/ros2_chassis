@@ -17,7 +17,7 @@ class SerialController : public QObject
     ~SerialController();
     void SendMsgToPort(const std::vector<int> &); // 外部使用发送串口数据
     void init();                                  // 初始化串口
-    vector<int> encoderData;                      // 编码器值
+    std::vector<int> encoderData;                      // 编码器值
     
 
   public slots:
