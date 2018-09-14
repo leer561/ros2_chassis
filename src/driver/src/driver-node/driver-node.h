@@ -7,11 +7,13 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+#include <vector>
 
-class DriverNode : public rclcpp::Node
+class DriverNode : public SerialController, public rclcpp::Node
 {
   public:
-    DriverNode(SerialController *);
+    DriverNode();
+    void publishOdometry(const std::vector<int> &);
 
   private:
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;

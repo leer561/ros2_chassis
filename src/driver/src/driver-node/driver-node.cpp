@@ -1,6 +1,4 @@
 // 串口文件
-#include "../serial-port/serial-controller.h"
-
 #include "driver-node.h"
 #include "util.cpp"
 
@@ -9,10 +7,11 @@
 #include "std_msgs/msg/string.hpp"
 
 #include <vector>
+#include <iostream>
 
-DriverNode::DriverNode(SerialController *myPort) : Node("base_driver")
+DriverNode::DriverNode() : Node("base_driver")
 {
-    auto callback = [this, myPort](const geometry_msgs::msg::Twist::SharedPtr msg) -> void {
+    auto callback = [this](const geometry_msgs::msg::Twist::SharedPtr msg) -> void {
         // 获取角速度,rad/s 线速度 m/s
         float angularTemp = msg->angular.z;
         float linearTemp = msg->linear.x;
@@ -30,8 +29,15 @@ DriverNode::DriverNode(SerialController *myPort) : Node("base_driver")
         speedData[5] = (((speedData[0] ^ speedData[2]) ^ speedData[3]) ^ speedData[4]) ^ speedData[6];
 
         // 串口写入 信息
-        myPort->SendMsgToPort(speedData);
+        SendMsgToPort(speedData);
     };
 
     sub_ = create_subscription<geometry_msgs::msg::Twist>("cmd_vel", callback, rmw_qos_profile_sensor_data);
+}
+
+// 处理编码器 派生类重写
+void DriverNode::publishOdometry(const std::vector<int> &data)
+{
+    for (auto i = data.begin(); i != data.end(); ++i)
+        std::cout << *i << ' ';
 }

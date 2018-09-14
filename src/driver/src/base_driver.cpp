@@ -14,13 +14,10 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    // 生成串口控制器
-    class SerialController *myPort = new SerialController();
-    myPort->init();
-
     rclcpp::init(argc, argv);
     // Create a node.
-    auto node = std::make_shared<DriverNode>(myPort);
+    auto node = std::make_shared<DriverNode>();
+    node->init();
 
     // spin will block until work comes in, execute work as it becomes
     // It will only be interrupted by Ctrl-C.

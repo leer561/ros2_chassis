@@ -40,7 +40,7 @@ void SerialController::init()
     emit start();
 }
 
-//接收读取的数据
+// 接收读取的数据
 void SerialController::getReadMsg(const QByteArray &data)
 {
     // 读取判断数据 长度小于14不读
@@ -56,4 +56,10 @@ void SerialController::getReadMsg(const QByteArray &data)
 
     // 编码器值
     encoderData = {data[11], data[12]};
+    publishOdometry(encoderData);
+}
+
+// 处理编码器 派生类重写
+void SerialController::publishOdometry(const std::vector<int> &data)
+{
 }
