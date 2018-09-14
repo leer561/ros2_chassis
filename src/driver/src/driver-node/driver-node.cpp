@@ -8,8 +8,6 @@
 #include "std_msgs/msg/string.hpp"
 
 #include <vector>
-#include <iostream>
-
 #include <QThread>
 #include <QByteArray>
 #include <QDebug>

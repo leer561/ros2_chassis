@@ -1,13 +1,12 @@
 #ifndef DRIVERNODE_H
 #define DRIVERNODE_H
 
-// 串口文件
-#include "../serial-port/serial-port.h"
-
+// ROS
 #include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
+// 串口
 #include <QByteArray>
 #include <QObject>
 #include <QThread>
