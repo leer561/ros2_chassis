@@ -1,19 +1,33 @@
 #ifndef DRIVERNODE_H
-#define SERIALPORT_H
+#define DRIVERNODE_H
 
 // 串口文件
-#include "../serial-port/serial-controller.h"
+#include "../serial-port/serial-port.h"
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-#include <vector>
 
-class DriverNode : public SerialController, public rclcpp::Node
+#include <QByteArray>
+#include <QObject>
+#include <QThread>
+
+class DriverNode : public QObject, public rclcpp::Node
 {
+    Q_OBJECT
+    QThread workerThread;
+
   public:
     DriverNode();
-    void publishOdometry(const std::vector<int> &);
+    ~DriverNode();
+    void init(); // 初始化串口
+
+  public slots:
+    void getReadMsg(const QByteArray &);
+
+  signals:
+    void write(const QByteArray &);
+    void start();
 
   private:
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;

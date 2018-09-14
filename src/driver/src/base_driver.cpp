@@ -1,6 +1,5 @@
 //以下为串口通讯需要的头文件
 #include <QCoreApplication>
-#include "serial-port/serial-controller.h"
 
 // 以下为ros node头文件
 #include "driver-node/driver-node.h"
