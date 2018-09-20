@@ -6,7 +6,7 @@ namespace driverNodeUtil
 {
 
 // 转速转换比例，执行速度调整比例
-float GetCoef(float item)
+int GetCoef(double item)
 {
     if (item > 128)
     {
