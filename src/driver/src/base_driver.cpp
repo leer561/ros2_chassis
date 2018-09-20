@@ -15,14 +15,16 @@ int main(int argc, char *argv[])
 
 {
     QCoreApplication a(argc, argv);
-
     rclcpp::init(argc, argv);
     // Create a node.
-    auto node = rclcpp::Node::make_shared("base_driver");
-    tf2_ros::StaticTransformBroadcaster transformBroadcaster(node);
-    auto publisher = node->create_publisher<nav_msgs::msg::Odometry>("odom");
-    DriverNode driver(node, transformBroadcaster);
-    driver.init(publisher);
+    auto node = std::make_shared<DriverNode>();
+
+    // 多态供tf2_ros构造初始化
+    rclcpp::Node::SharedPtr driverNode;
+    driverNode = node;
+
+    tf2_ros::StaticTransformBroadcaster transformBroadcaster(driverNode);
+    node->init(transformBroadcaster);
 
     // spin will block until work comes in, execute work as it becomes
     // It will only be interrupted by Ctrl-C.

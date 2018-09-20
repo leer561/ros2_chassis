@@ -19,16 +19,15 @@
 #include <QThread>
 #include <memory>
 
-class DriverNode : public QObject
+class DriverNode : public QObject, public rclcpp::Node
 {
     Q_OBJECT
     QThread workerThread;
-    std::shared_ptr<rclcpp::Publisher<nav_msgs::msg::Odometry>> publisher;
 
   public:
-    DriverNode(rclcpp::Node::SharedPtr const &node, tf2_ros::StaticTransformBroadcaster &broadcast);
+    DriverNode();
     ~DriverNode();
-    void init(std::shared_ptr<rclcpp::Publisher<nav_msgs::msg::Odometry>> const &p); // 初始化串口
+    void init(tf2_ros::StaticTransformBroadcaster &broadcast); // 初始化串口
   public slots:
     void getReadMsg(const QByteArray &);
 
@@ -51,6 +50,8 @@ class DriverNode : public QObject
     double vy = 0;  //  y 方向 -0.1m/s
     double vth = 0; // 角速度为0.1rad/s
 
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr publisher;
     rclcpp::Time lastTime = rclcpp::Time();
     tf2_ros::StaticTransformBroadcaster *transformBroadcaster = nullptr; // 广播成员
     tf2::Quaternion odomQ = tf2::Quaternion();                           // tf2 Quaternion

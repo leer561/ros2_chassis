@@ -24,9 +24,9 @@
 #include <cmath>
 #include <memory>
 
-DriverNode::DriverNode(
-    rclcpp::Node::SharedPtr const &node, tf2_ros::StaticTransformBroadcaster &broadcast)
+DriverNode::DriverNode() : Node("base_driver")
 {
+    // 订阅并处理cmd_vel msg
     auto callback = [this](const geometry_msgs::msg::Twist::SharedPtr msg) -> void {
         // 获取角速度,rad/s 线速度 m/s
         float angularTemp = msg->angular.z;
@@ -53,10 +53,10 @@ DriverNode::DriverNode(
         emit write(speedData);
     };
 
-    node->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", callback, rmw_qos_profile_sensor_data);
+    sub_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", callback, rmw_qos_profile_sensor_data);
 
-    // 初始化TF广播
-    transformBroadcaster = &broadcast;
+    // 创建发布
+    publisher = this->create_publisher<nav_msgs::msg::Odometry>("odom");
 }
 
 DriverNode::~DriverNode()
@@ -65,7 +65,7 @@ DriverNode::~DriverNode()
     workerThread.wait();
 }
 
-void DriverNode::init(std::shared_ptr<rclcpp::Publisher<nav_msgs::msg::Odometry>> const &p)
+void DriverNode::init(tf2_ros::StaticTransformBroadcaster &broadcast)
 {
     SerialPort *port = new SerialPort;
     port->moveToThread(&workerThread);
@@ -76,8 +76,8 @@ void DriverNode::init(std::shared_ptr<rclcpp::Publisher<nav_msgs::msg::Odometry>
     workerThread.start();
     emit start();
 
-    // 初始化publish
-    publisher = p;
+    // 初始化TF广播
+    transformBroadcaster = &broadcast;
 }
 
 // 接收读取的数据
@@ -132,7 +132,7 @@ void DriverNode::getReadMsg(const QByteArray &data)
     //geometry_msgs::msg::Quaternion odomQuat = tf2::Quaternion(tf2Scalar(0), tf2Scalar(0), tf2Scalar(theta));
 
     odomQ.setRPY(theta, 0, 0);
-    geometry_msgs::msg::Quaternion odomQuat = tf2::toMsg<tf2::Quaternion, geometry_msgs::msg::Quaternion>(odomQ);
+    //geometry_msgs::msg::Quaternion odomQuat = tf2::toMsg<tf2::Quaternion, geometry_msgs::msg::Quaternion>(odomQ);
     //first, we'll publish the transform over tf
     //TransformStamped 类型为tf 发布时需要的类型
     geometry_msgs::msg::TransformStamped odom_trans;
@@ -148,7 +148,7 @@ void DriverNode::getReadMsg(const QByteArray &data)
     odom_trans.transform.translation.x = x;
     odom_trans.transform.translation.y = y;
     odom_trans.transform.translation.z = 0.0;
-    odom_trans.transform.rotation = odomQuat;
+    //odom_trans.transform.rotation = odomQuat;
 
     //发送变换
     //send the transform
