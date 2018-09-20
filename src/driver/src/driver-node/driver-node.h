@@ -11,7 +11,6 @@
 
 // transform broadcaster
 #include "tf2_ros/static_transform_broadcaster.h"
-#include "tf2/LinearMath/Quaternion.h"
 
 // 串口
 #include <QByteArray>
@@ -54,7 +53,6 @@ class DriverNode : public QObject, public rclcpp::Node
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr publisher;
     rclcpp::Time lastTime = rclcpp::Time();
     tf2_ros::StaticTransformBroadcaster *transformBroadcaster = nullptr; // 广播成员
-    tf2::Quaternion odomQ = tf2::Quaternion();                           // tf2 Quaternion
 };
 
 #endif // DriverNode

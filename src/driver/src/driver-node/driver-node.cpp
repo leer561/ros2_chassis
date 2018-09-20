@@ -3,7 +3,6 @@
 #include "../serial-port/serial-port.h"
 #include "util.cpp"
 
-#include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp/time.hpp"
@@ -14,6 +13,7 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2/convert.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 
 #include <vector>
@@ -88,16 +88,17 @@ void DriverNode::getReadMsg(const QByteArray &data)
         return;
 
     // 判断头部 不是0xEA 即234 返回
-    if (data[0] != 234)
+    if (data[0] != 106)
         return;
 
-    // 左侧编码器
+    // 编码器值
     QByteArray _lEncoder = data.mid(11, 4);
     QByteArray _rEncoder = data.mid(15, 4);
     bool qToInt;
     int lEncoder = _lEncoder.toInt(&qToInt, 10);
     int rEncoder = _rEncoder.toInt(&qToInt, 10);
-
+    qDebug() << "左编码器值" << lEncoder;
+    qDebug() << "右编码器值" << rEncoder;
     // 转换出错提示
     if (!qToInt)
     {
@@ -130,9 +131,13 @@ void DriverNode::getReadMsg(const QByteArray &data)
     //以下为了兼容三维系统下的消息结构，将里程计的偏航角转换成四元数
     //since all odometry is 6DOF we'll need a quaternion created from yaw
     //geometry_msgs::msg::Quaternion odomQuat = tf2::Quaternion(tf2Scalar(0), tf2Scalar(0), tf2Scalar(theta));
-
-    odomQ.setRPY(theta, 0, 0);
-    //geometry_msgs::msg::Quaternion odomQuat = tf2::toMsg<tf2::Quaternion, geometry_msgs::msg::Quaternion>(odomQ);
+    tf2::Quaternion odomQ = tf2::Quaternion();
+    odomQ.setRPY(0, 0, theta);
+    geometry_msgs::msg::Quaternion odomQuat;
+    odomQuat.x = odomQ.x();
+    odomQuat.y = odomQ.y();
+    odomQuat.z = odomQ.z();
+    odomQuat.w = odomQ.w();
     //first, we'll publish the transform over tf
     //TransformStamped 类型为tf 发布时需要的类型
     geometry_msgs::msg::TransformStamped odom_trans;
@@ -148,7 +153,7 @@ void DriverNode::getReadMsg(const QByteArray &data)
     odom_trans.transform.translation.x = x;
     odom_trans.transform.translation.y = y;
     odom_trans.transform.translation.z = 0.0;
-    //odom_trans.transform.rotation = odomQuat;
+    odom_trans.transform.rotation = odomQuat;
 
     //发送变换
     //send the transform
