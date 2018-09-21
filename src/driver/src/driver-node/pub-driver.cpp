@@ -1,99 +1,55 @@
 // 串口文件
-#include "driver-node.h"
-#include "../serial-port/serial-port.h"
-#include "util.cpp"
+#include "./pub-driver.h"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp/time.hpp"
-#include "std_msgs/msg/string.hpp"
 
 //包含 tf 以及 nav_msgs 相关的头文件
 #include "tf2_ros/static_transform_broadcaster.h"
 #include "tf2/LinearMath/Quaternion.h"
-#include "tf2/convert.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 
 #include <vector>
-#include <QThread>
 #include <QByteArray>
 #include <QDebug>
 
 #include <cmath>
-#include <memory>
 
-DriverNode::DriverNode() : Node("base_driver")
+PubDriver::PubDriver() : Node("pub_driver")
 {
-    // 订阅并处理cmd_vel msg
-    auto callback = [this](const geometry_msgs::msg::Twist::SharedPtr msg) -> void {
-        // 获取角速度,rad/s 线速度 m/s
-        float angularTemp = msg->angular.z;
-        float linearTemp = msg->linear.x;
-
-        // 将转换好的小车速度分量为左右轮速度
-        int leftSpeed = driverNodeUtil::GetCoef(linearTemp - 0.5f * angularTemp * D);
-        int rightSpeed = driverNodeUtil::GetCoef(linearTemp + 0.5f * angularTemp * D);
-
-        // 获取setSpeed 协议
-        QByteArray speedData;
-        speedData.resize(7);
-        speedData[0] = 0xea;
-        speedData[1] = 0x05;
-        speedData[2] = 0x7e;
-        speedData[3] = leftSpeed;
-        speedData[4] = rightSpeed;
-        // 异或检验
-        speedData[5] = (((speedData[0] ^ speedData[2]) ^ speedData[3]) ^ speedData[4]) ^ speedData[6];
-        speedData[6] = 0x0d;
-
-        // 串口写入信息
-        qDebug() << "cmd speedData" << speedData;
-        emit write(speedData);
-    };
-
-    sub_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", callback, rmw_qos_profile_sensor_data);
-
     // 创建发布
     publisher = this->create_publisher<nav_msgs::msg::Odometry>("odom");
 }
 
-DriverNode::~DriverNode()
+PubDriver::~PubDriver()
 {
-    workerThread.quit();
-    workerThread.wait();
 }
 
-void DriverNode::init(tf2_ros::StaticTransformBroadcaster &broadcast)
+void PubDriver::init(tf2_ros::StaticTransformBroadcaster &broadcast)
 {
-    SerialPort *port = new SerialPort;
-    port->moveToThread(&workerThread);
-    connect(&workerThread, &QThread::finished, port, &QObject::deleteLater);
-    connect(this, &DriverNode::write, port, &SerialPort::write);
-    connect(this, &DriverNode::start, port, &SerialPort::init);
-    connect(port, &SerialPort::sendReadMsg, this, &DriverNode::getReadMsg);
-    workerThread.start();
-    emit start();
-
-    // 初始化TF广播
     transformBroadcaster = &broadcast;
+    emit start();
 }
 
 // 接收读取的数据
-void DriverNode::getReadMsg(const QByteArray &data)
+void PubDriver::getReadMsg(const QByteArray &data)
 {
     // 读取判断数据 长度小于14不读
     if (data.size() < 19)
         return;
 
     // 判断头部 不是0xEA 即234 返回
-    if (data[0] != 106)
+    if (data[0] != 234)
         return;
 
     // 编码器值
     QByteArray _lEncoder = data.mid(11, 4);
     QByteArray _rEncoder = data.mid(15, 4);
+    qDebug() << "左编码器值_" << _lEncoder;
+    qDebug() << "左编码器值_" << _rEncoder;
     bool qToInt;
     int lEncoder = _lEncoder.toInt(&qToInt, 10);
     int rEncoder = _rEncoder.toInt(&qToInt, 10);

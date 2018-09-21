@@ -25,7 +25,7 @@ find_package(tf2_ros REQUIRED)
 
 find_package(Qt5Core REQUIRED)
 
-add_executable(base_driver src/base_driver.cpp src/serial-port/serial-port.cpp src/driver-node/driver-node.cpp)
+add_executable(base_driver src/base_driver.cpp src/serial-port/serial-port.cpp src/driver-node/cmd-driver.cpp src/driver-node/pub-driver.cpp)
 ament_target_dependencies(base_driver rclcpp geometry_msgs std_msgs nav_msgs tf2 tf2_ros)
 
 qt5_use_modules(base_driver Core SerialPort)

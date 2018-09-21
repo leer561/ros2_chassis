@@ -1,12 +1,10 @@
-#ifndef DRIVERNODE_H
-#define DRIVERNODE_H
+#ifndef PUBDRIVER_H
+#define PUBDRIVER_H
 
 // ROS
-#include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp/time.hpp"
-#include "std_msgs/msg/string.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 
 // transform broadcaster
@@ -15,24 +13,20 @@
 // 串口
 #include <QByteArray>
 #include <QObject>
-#include <QThread>
-#include <memory>
 
-class DriverNode : public QObject, public rclcpp::Node
+class PubDriver : public QObject, public rclcpp::Node
 {
     Q_OBJECT
-    QThread workerThread;
 
   public:
-    DriverNode();
-    ~DriverNode();
+    PubDriver();
+    ~PubDriver();
     void init(tf2_ros::StaticTransformBroadcaster &broadcast); // 初始化串口
   public slots:
     void getReadMsg(const QByteArray &);
 
   signals:
-    void write(const QByteArray &);
-    void start();
+    void start(); // 初始化串口
 
   private:
     double D = 0.39f; //两轮间距，单位是m
@@ -49,10 +43,9 @@ class DriverNode : public QObject, public rclcpp::Node
     double vy = 0;  //  y 方向 -0.1m/s
     double vth = 0; // 角速度为0.1rad/s
 
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr publisher;
     rclcpp::Time lastTime = rclcpp::Time();
     tf2_ros::StaticTransformBroadcaster *transformBroadcaster = nullptr; // 广播成员
 };
 
-#endif // DriverNode
+#endif // PubDriver

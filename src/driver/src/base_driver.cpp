@@ -1,34 +1,50 @@
-//以下为串口通讯需要的头文件
-#include <QCoreApplication>
-
 // 以下为ros node头文件
-#include "driver-node/driver-node.h"
+#include "driver-node/pub-driver.h"
+#include "driver-node/cmd-driver.h"
+#include "serial-port/serial-port.h"
+
+// ros
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/static_transform_broadcaster.h"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/publisher.hpp"
 
-// 智能指针
+#include <QCoreApplication>
+#include <QThread>
 #include <memory>
 
 int main(int argc, char *argv[])
 
 {
-    QCoreApplication a(argc, argv);
     rclcpp::init(argc, argv);
-    // Create a node.
-    auto node = std::make_shared<DriverNode>();
+    QCoreApplication a(argc, argv);
+    CmdDriver *subDriver = new CmdDriver();
+    PubDriver *pubDriver = new PubDriver();
 
-    // 多态供tf2_ros构造初始化
+    // Createnode.
+    std::shared_ptr<CmdDriver> subNode(subDriver);
+    std::shared_ptr<PubDriver> pubNode(pubDriver);
+
+    // 初始化串口管理类 并初始化另外的线程
+    QThread workerThread;
+    SerialPort *port = new SerialPort;
+    port->moveToThread(&workerThread);
+    QObject::connect(&workerThread, &QThread::finished, port, &QObject::deleteLater);
+    QObject::connect(subDriver, &CmdDriver::write, port, &SerialPort::write);
+    QObject::connect(pubDriver, &PubDriver::start, port, &SerialPort::init);
+    QObject::connect(port, &SerialPort::sendReadMsg, pubDriver, &PubDriver::getReadMsg);
+    workerThread.start();
+
+    // 多态供tf2_ros构造初始化以及add node
     rclcpp::Node::SharedPtr driverNode;
-    driverNode = node;
-
+    driverNode = pubNode;
     tf2_ros::StaticTransformBroadcaster transformBroadcaster(driverNode);
-    node->init(transformBroadcaster);
+    pubDriver->init(transformBroadcaster);
 
-    // spin will block until work comes in, execute work as it becomes
-    // It will only be interrupted by Ctrl-C.
-    rclcpp::spin(node);
+    rclcpp::executors::SingleThreadedExecutor exec;
+    exec.add_node(pubNode);
+    exec.add_node(subNode);
+    exec.spin();
     rclcpp::shutdown();
 
     return a.exec();
