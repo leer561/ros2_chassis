@@ -35,6 +35,11 @@ int main(int argc, char *argv[])
     QObject::connect(port, &SerialPort::sendReadMsg, pubDriver, &PubDriver::getReadMsg);
     workerThread.start();
 
+    // 新开线程推送消息
+    QThread pubThread;
+    pubDriver->moveToThread(&pubThread);
+    QObject::connect(&pubThread, &QThread::finished, port, &QObject::deleteLater);
+
     // 多态供tf2_ros构造初始化以及add node
     rclcpp::Node::SharedPtr driverNode;
     driverNode = pubNode;
