@@ -18,6 +18,39 @@
 
 #include <cmath>
 
+enum Endian
+{
+    LittileEndian,
+    BigEndian
+};
+
+int byteAraryToInt(QByteArray arr, Endian endian = BigEndian)
+{
+    if (arr.size() < 4)
+        return 0;
+
+    int res = 0;
+
+    // 小端模式
+    if (endian == LittileEndian)
+    {
+        res = arr.at(0) & 0x000000FF;
+        res |= (arr.at(1) << 8) & 0x0000FF00;
+        res |= (arr.at(2) << 16) & 0x00FF0000;
+        res |= (arr.at(3) << 24) & 0xFF000000;
+    }
+
+    // 大端模式
+    else if (endian == BigEndian)
+    {
+        res = (arr.at(0) << 24) & 0xFF000000;
+        res |= (arr.at(1) << 16) & 0x00FF0000;
+        res |= arr.at(2) << 8 & 0x0000FF00;
+        res |= arr.at(3) & 0x000000FF;
+    }
+    return res;
+}
+
 PubDriver::PubDriver() : Node("pub_driver")
 {
     // 创建发布
@@ -51,8 +84,8 @@ void PubDriver::getReadMsg(const QByteArray &data)
     qDebug() << "左编码器值_" << _lEncoder;
     qDebug() << "左编码器值_" << _rEncoder;
     bool qToInt;
-    int lEncoder = _lEncoder.toInt(&qToInt, 10);
-    int rEncoder = _rEncoder.toInt(&qToInt, 10);
+    int lEncoder = _lEncoder.toHex().toInt(&qToInt, 10);
+    int rEncoder = _rEncoder.toHex().toInt(&qToInt, 10);
     qDebug() << "左编码器值" << lEncoder;
     qDebug() << "右编码器值" << rEncoder;
     // 转换出错提示

@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     QThread pubThread;
     pubDriver->moveToThread(&pubThread);
     QObject::connect(&pubThread, &QThread::finished, port, &QObject::deleteLater);
+    pubThread.start();
 
     // 多态供tf2_ros构造初始化以及add node
     rclcpp::Node::SharedPtr driverNode;
