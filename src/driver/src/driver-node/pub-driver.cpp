@@ -74,15 +74,6 @@ void PubDriver::getReadMsg(const QByteArray &data)
     if (data.size() < 19)
         return;
 
-    // 判断头部 不是0xEA 即234 返回
-    bool ok;
-    int hex = data[0].toInt(&ok, 16);
-    if (!ok)
-    {
-        qDebug() << "data[0]转换出错了";
-    }
-    qDebug() << "hex: " << hex;
-
     // 编码器值
     QByteArray _lEncoder = data.mid(11, 4);
     QByteArray _rEncoder = data.mid(15, 4);
