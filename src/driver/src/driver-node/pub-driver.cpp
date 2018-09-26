@@ -75,24 +75,33 @@ void PubDriver::getReadMsg(const QByteArray &data)
         return;
 
     // 判断头部 不是0xEA 即234 返回
-    if (data[0] != 234)
+    bool ok;
+    int hex = data[0].toInt(&ok, 16);
+    if (!ok)
+    {
+        qDebug() << "data[0]转换出错了";
+    }
+    qDebug() << "hex: " << hex;
+
+    // 如果是0x25 只更新编码器的值
+    if (hex == 25)
+    {
+        QByteArray _l = data.mid(3, 4);
+        QByteArray _r = data.mid(7, 4);
+        lEncoderLast = byteAraryToInt(_l);
+        rEncoderLast = byteAraryToInt(_r);
+        qDebug() << "当前左编码器值" << lEncoderLast;
+        qDebug() << "当前右编码器值" << rEncoderLast;
         return;
+    }
 
     // 编码器值
     QByteArray _lEncoder = data.mid(11, 4);
     QByteArray _rEncoder = data.mid(15, 4);
-    qDebug() << "左编码器值_" << _lEncoder;
-    qDebug() << "左编码器值_" << _rEncoder;
-    bool qToInt;
-    int lEncoder = _lEncoder.toHex().toInt(&qToInt, 10);
-    int rEncoder = _rEncoder.toHex().toInt(&qToInt, 10);
+    int lEncoder = byteAraryToInt(_lEncoder);
+    int rEncoder = byteAraryToInt(_rEncoder);
     qDebug() << "左编码器值" << lEncoder;
     qDebug() << "右编码器值" << rEncoder;
-    // 转换出错提示
-    if (!qToInt)
-    {
-        qDebug() << "编码器值转换出错啦！！！";
-    }
 
     // 解算里程
     double const PI = 3.14159265;

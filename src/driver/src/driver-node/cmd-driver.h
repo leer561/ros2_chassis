@@ -13,6 +13,7 @@ class CmdDriver : public QObject, public rclcpp::Node
   public:
     CmdDriver();
     ~CmdDriver();
+    void initMotor();
   signals:
     void write(const QByteArray &);
 
