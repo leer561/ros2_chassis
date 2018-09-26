@@ -47,9 +47,6 @@ int main(int argc, char *argv[])
     tf2_ros::StaticTransformBroadcaster transformBroadcaster(driverNode);
     pubDriver->init(transformBroadcaster);
 
-    // 获取当前电机编码器
-    subDriver->initMotor();
-
     rclcpp::executors::SingleThreadedExecutor exec;
     exec.add_node(pubNode);
     exec.add_node(subNode);

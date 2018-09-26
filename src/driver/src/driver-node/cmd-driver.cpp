@@ -45,15 +45,3 @@ CmdDriver::CmdDriver() : Node("cmd_driver")
 CmdDriver::~CmdDriver()
 {
 }
-
-void CmdDriver::initMotor()
-{
-    QByteArray speedData;
-    speedData.resize(5);
-    speedData[0] = 0xea;
-    speedData[1] = 0x03;
-    speedData[2] = 0x25;
-    speedData[3] = 0x00;
-    speedData[4] = 0x0D;
-    emit write(speedData);
-}

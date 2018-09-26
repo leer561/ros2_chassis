@@ -83,18 +83,6 @@ void PubDriver::getReadMsg(const QByteArray &data)
     }
     qDebug() << "hex: " << hex;
 
-    // 如果是0x25 只更新编码器的值
-    if (hex == 25)
-    {
-        QByteArray _l = data.mid(3, 4);
-        QByteArray _r = data.mid(7, 4);
-        lEncoderLast = byteAraryToInt(_l);
-        rEncoderLast = byteAraryToInt(_r);
-        qDebug() << "当前左编码器值" << lEncoderLast;
-        qDebug() << "当前右编码器值" << rEncoderLast;
-        return;
-    }
-
     // 编码器值
     QByteArray _lEncoder = data.mid(11, 4);
     QByteArray _rEncoder = data.mid(15, 4);
