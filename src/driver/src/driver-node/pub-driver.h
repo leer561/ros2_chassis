@@ -5,6 +5,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp/time.hpp"
+#include "rclcpp/clock.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 
 // transform broadcaster
@@ -44,7 +45,8 @@ class PubDriver : public QObject, public rclcpp::Node
     double vth = 0; // 角速度为0.1rad/s
 
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr publisher;
-    rclcpp::Time lastTime = rclcpp::Time();
+    rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
+    rclcpp::Time lastTime = clock->now();
     tf2_ros::StaticTransformBroadcaster *transformBroadcaster = nullptr; // 广播成员
 };
 

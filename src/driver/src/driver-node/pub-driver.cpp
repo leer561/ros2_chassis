@@ -4,6 +4,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp/time.hpp"
+#include "rclcpp/clock.hpp"
 
 //包含 tf 以及 nav_msgs 相关的头文件
 #include "tf2_ros/static_transform_broadcaster.h"
@@ -86,7 +87,6 @@ void PubDriver::getReadMsg(const QByteArray &data)
     double const PI = 3.14159265;
     double lMileage = PI * wheelDiameter * (lEncoder - lEncoderLast) / encoderTicks;
     double rMileage = PI * wheelDiameter * (rEncoder - rEncoderLast) / encoderTicks;
-
     // 赋值last编码器值
     lEncoderLast = lEncoder;
     rEncoderLast = rEncoder;
@@ -104,7 +104,7 @@ void PubDriver::getReadMsg(const QByteArray &data)
     }
     theta += dtheta;
 
-    rclcpp::Time currentTime = rclcpp::Time();
+    rclcpp::Time currentTime = clock->now();
     //以下为了兼容三维系统下的消息结构，将里程计的偏航角转换成四元数
     //since all odometry is 6DOF we'll need a quaternion created from yaw
     //geometry_msgs::msg::Quaternion odomQuat = tf2::Quaternion(tf2Scalar(0), tf2Scalar(0), tf2Scalar(theta));
