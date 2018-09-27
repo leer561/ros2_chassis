@@ -139,7 +139,7 @@ void PubDriver::getReadMsg(const QByteArray &data)
     //以便于导航包可以获取速度信息
     //还需设置时间戳以及父子参考坐标系
 
-    double dt = (currentTime.nanoseconds() - lastTime.nanoseconds()) / (1000 * 1000 * 1000);
+    double dt = currentTime.nanoseconds() - lastTime.nanoseconds();
     //next, we'll publish the odometry message over ROS
     nav_msgs::msg::Odometry odom;
     odom.header.stamp = currentTime;
@@ -155,9 +155,9 @@ void PubDriver::getReadMsg(const QByteArray &data)
     odom.pose.pose.position.z = 0.0;
     odom.pose.pose.orientation = odomQuat;
     //set the velocity
-    odom.twist.twist.linear.x = mileage / dt;
+    odom.twist.twist.linear.x = mileage / dt * 1000 * 1000 * 1000;
     odom.twist.twist.linear.y = vy;
-    odom.twist.twist.angular.z = dtheta / dt;
+    odom.twist.twist.angular.z = dtheta / dt * 1000 * 1000 * 1000;
     //publish the message
     lastTime = currentTime;
     publisher->publish(odom);
