@@ -153,11 +153,22 @@ void PubDriver::getReadMsg(const QByteArray &data)
     odom.pose.pose.position.x = x;
     odom.pose.pose.position.y = y;
     odom.pose.pose.position.z = 0.0;
-    odom.pose.pose.orientation = odomQuat;
+    odom.pose.pose.orientation.x = odomQ.x();
+    odom.pose.pose.orientation.y = odomQ.y();
+    odom.pose.pose.orientation.z = odomQ.z();
+    odom.pose.pose.orientation.w = odomQ.w();
+
+    for (unsigned int i = 0; i < odom.pose.covariance.size(); ++i)
+    {
+        odom.pose.covariance[i] = 0.0;
+    }
+    odom.pose.covariance[0] = 0.1;
+    odom.pose.covariance[7] = 0.1;
+
     //set the velocity
-    odom.twist.twist.linear.x = mileage / dt * 1000 * 1000 * 1000;
+    odom.twist.twist.linear.x = mileage / (dt * 1000 * 1000 * 1000);
     odom.twist.twist.linear.y = vy;
-    odom.twist.twist.angular.z = dtheta / dt * 1000 * 1000 * 1000;
+    odom.twist.twist.angular.z = dtheta / (dt * 1000 * 1000 * 1000);
     //publish the message
     lastTime = currentTime;
     publisher->publish(odom);
