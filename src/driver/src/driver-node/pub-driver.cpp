@@ -100,8 +100,8 @@ void PubDriver::getReadMsg(const QByteArray &data)
     {
         double dx = std::cos(dtheta) * mileage;
         double dy = -(std::sin(dtheta) * mileage);
-        x += dx * std::cos(theta) - dy * std::sin(theta);
-        y += dx * std::sin(theta) + dy * std::cos(theta);
+        x += (dx * std::cos(theta) - dy * std::sin(theta));
+        y += (dx * std::sin(theta) + dy * std::cos(theta));
     }
     theta += dtheta;
     qDebug() << "theta： " << theta;
@@ -109,7 +109,7 @@ void PubDriver::getReadMsg(const QByteArray &data)
     //以下为了兼容三维系统下的消息结构，将里程计的偏航角转换成四元数
     //geometry_msgs::msg::Quaternion odomQuat = tf2::Quaternion(tf2Scalar(0), tf2Scalar(0), tf2Scalar(theta));
     tf2::Quaternion odomQ = tf2::Quaternion();
-    odomQ.setRPY(0, 0, theta);
+    odomQ.setRPY(0, 0, tf2Scalar(theta));
     geometry_msgs::msg::Quaternion odomQuat;
     odomQuat.x = odomQ.x();
     odomQuat.y = odomQ.y();
@@ -166,9 +166,9 @@ void PubDriver::getReadMsg(const QByteArray &data)
     odom.pose.covariance[7] = 0.1;
 
     //set the velocity
-    odom.twist.twist.linear.x = mileage / (dt / 1000 / 1000 / 1000);
+    odom.twist.twist.linear.x = mileage * 1000 * 1000 * 1000 / dt;
     odom.twist.twist.linear.y = vy;
-    odom.twist.twist.angular.z = dtheta / (dt / 1000 / 1000 / 1000);
+    odom.twist.twist.angular.z = dtheta * 1000 * 1000 * 1000 / dt;
     //publish the message
     lastTime = currentTime;
     publisher->publish(odom);

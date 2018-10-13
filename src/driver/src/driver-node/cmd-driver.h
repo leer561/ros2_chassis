@@ -17,7 +17,6 @@ class CmdDriver : public QObject, public rclcpp::Node
     void write(const QByteArray &);
 
   private:
-    double D = 0.39f; //两轮间距，单位是m
     double linearTemp = 0;
     double angularTemp = 0; //暂存的线速度和角速度
 

@@ -15,7 +15,7 @@ void SerialPort::init()
 {
     //对串口进行一些初始化
     port = new QSerialPort();
-    port->setPortName("/dev/ttyUSB1"); // 串口名
+    port->setPortName("/dev/ttyUSB0"); // 串口名
     port->open(QIODevice::ReadWrite);
     port->setBaudRate(QSerialPort::Baud38400);        //波特率
     port->setDataBits(QSerialPort::Data8);            //数据字节，8字节
