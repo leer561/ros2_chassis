@@ -76,8 +76,8 @@ void PubDriver::getReadMsg(const QByteArray &data)
         return;
 
     // 编码器值
-    QByteArray _lEncoder = data.mid(11, 4);
-    QByteArray _rEncoder = data.mid(15, 4);
+    QByteArray _lEncoder = data.mid(15, 4);
+    QByteArray _rEncoder = data.mid(11, 4);
     int lEncoder = byteAraryToInt(_lEncoder);
     int rEncoder = byteAraryToInt(_rEncoder);
     qDebug() << "左编码器值" << lEncoder;
@@ -107,7 +107,6 @@ void PubDriver::getReadMsg(const QByteArray &data)
     qDebug() << "theta： " << theta;
     rclcpp::Time currentTime = clock->now();
     //以下为了兼容三维系统下的消息结构，将里程计的偏航角转换成四元数
-    //since all odometry is 6DOF we'll need a quaternion created from yaw
     //geometry_msgs::msg::Quaternion odomQuat = tf2::Quaternion(tf2Scalar(0), tf2Scalar(0), tf2Scalar(theta));
     tf2::Quaternion odomQ = tf2::Quaternion();
     odomQ.setRPY(0, 0, theta);
@@ -116,7 +115,7 @@ void PubDriver::getReadMsg(const QByteArray &data)
     odomQuat.y = odomQ.y();
     odomQuat.z = odomQ.z();
     odomQuat.w = odomQ.w();
-    //first, we'll publish the transform over tf
+
     //TransformStamped 类型为tf 发布时需要的类型
     geometry_msgs::msg::TransformStamped odom_trans;
     //时间戳
@@ -167,9 +166,9 @@ void PubDriver::getReadMsg(const QByteArray &data)
     odom.pose.covariance[7] = 0.1;
 
     //set the velocity
-    odom.twist.twist.linear.x = mileage / (dt * 1000 * 1000 * 1000);
+    odom.twist.twist.linear.x = mileage / (dt / 1000 / 1000 / 1000);
     odom.twist.twist.linear.y = vy;
-    odom.twist.twist.angular.z = dtheta / (dt * 1000 * 1000 * 1000);
+    odom.twist.twist.angular.z = dtheta / (dt / 1000 / 1000 / 1000);
     //publish the message
     lastTime = currentTime;
     publisher->publish(odom);
