@@ -93,17 +93,18 @@ void PubDriver::getReadMsg(const QByteArray &data)
 
     // 航向
     double mileage = (lMileage + rMileage) / 2;
-    double dtheta = (rMileage - lMileage) / D;
-
+    double dtheta = (rMileage - lMileage) / baseWidth;
+    qDebug() << "mileage： " << mileage;
+    qDebug() << "dtheta： " << dtheta;
     if (mileage != 0)
     {
         double dx = std::cos(dtheta) * mileage;
-        double dy = std::sin(dtheta) * mileage;
+        double dy = -(std::sin(dtheta) * mileage);
         x += dx * std::cos(theta) - dy * std::sin(theta);
         y += dx * std::sin(theta) + dy * std::cos(theta);
     }
     theta += dtheta;
-
+    qDebug() << "theta： " << theta;
     rclcpp::Time currentTime = clock->now();
     //以下为了兼容三维系统下的消息结构，将里程计的偏航角转换成四元数
     //since all odometry is 6DOF we'll need a quaternion created from yaw

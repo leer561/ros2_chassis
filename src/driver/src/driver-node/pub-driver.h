@@ -30,12 +30,12 @@ class PubDriver : public QObject, public rclcpp::Node
     void start(); // 初始化串口
 
   private:
-    double D = 0.39f; //两轮间距，单位是m
     double linearTemp = 0;
     double angularTemp = 0;       //暂存的线速度和角速度
     int lEncoderLast = 0;         //左轮编码器
     int rEncoderLast = 0;         //右轮编码器
-    double wheelDiameter = 0.125; //右轮编码器
+    double wheelDiameter = 0.08;  //轮子直径
+    double baseWidth = 0.25;      //两轮轮距
     int encoderTicks = 3300;      //一圈编码器值
     double x = 0;
     double y = 0;
