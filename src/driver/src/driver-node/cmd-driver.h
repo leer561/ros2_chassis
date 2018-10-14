@@ -19,6 +19,7 @@ class CmdDriver : public QObject, public rclcpp::Node
   private:
     double linearTemp = 0;
     double angularTemp = 0; //暂存的线速度和角速度
+    double baseWidth = 0.25;
 
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_;
 };

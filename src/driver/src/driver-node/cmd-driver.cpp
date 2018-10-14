@@ -19,12 +19,8 @@ CmdDriver::CmdDriver() : Node("cmd_driver")
         float linearTemp = msg->linear.x;
 
         // 将转换好的小车速度分量为左右轮速度
-        float delta_t = linearTemp > 0 ? 5.9 : 4.45;
-        float RightWheelV = linearTemp + angularTemp / delta_t / 2;
-        float LeftWheelV = linearTemp - angularTemp / delta_t / 2;
-
-        int leftSpeed = driverNodeUtil::GetCoef(LeftWheelV);
-        int rightSpeed = driverNodeUtil::GetCoef(RightWheelV);
+        int leftSpeed = driverNodeUtil::GetCoef(linearTemp - 0.5f * angularTemp * baseWidth);
+        int rightSpeed = driverNodeUtil::GetCoef(linearTemp + 0.5f * angularTemp * baseWidth);
 
         // 获取setSpeed 协议
         QByteArray speedData;
