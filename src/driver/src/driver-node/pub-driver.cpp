@@ -5,6 +5,7 @@
 #include "rclcpp/publisher.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/clock.hpp"
+#include "rcutils/time.h"
 
 //包含 tf 以及 nav_msgs 相关的头文件
 #include "tf2_ros/static_transform_broadcaster.h"
@@ -114,17 +115,26 @@ void PubDriver::getReadMsg(const QByteArray &data)
     pose_update.translation(mileage, 0);
     pose_update.rotation(dtheta);
 
-    double last_diff_time = (currentTime.nanoseconds() - lastTime.nanoseconds()) / (1000 * 1000 * 1000);
+    double last_diff_time = (currentTime.nanoseconds() - lastTime.nanoseconds()) / 1000;
+    if (last_diff_time < 20)
+        return;
+    double tx = pose_update.x();
+    double ty = pose_update.y();
+    double th = pose_update.heading();
+    tx = tx * 1000 * 1000 / last_diff_time;
+    ty = ty * 1000 * 1000 / last_diff_time;
+    th = th * 1000 * 1000 / last_diff_time;
     qDebug() << "last_diff_time " << last_diff_time;
-    pose_update_rates << pose_update.x() / last_diff_time,
-        pose_update.y() / last_diff_time,
-        pose_update.heading() / last_diff_time;
+    pose_update_rates << tx, ty, th;
 
     pose *= pose_update;
 
     // publish the odometry message over ROS
+    rcutils_time_point_value_t now;
+
     nav_msgs::msg::Odometry odom;
-    odom.header.stamp = currentTime;
+    odom.header.stamp.sec = RCL_NS_TO_S(now);
+    odom.header.stamp.nanosec = now - RCL_S_TO_NS(odom.header.stamp.sec);
     odom.header.frame_id = "odom";
     odom.child_frame_id = "base_link";
     odom.pose.pose.position.x = pose.x();
@@ -159,7 +169,7 @@ void PubDriver::getReadMsg(const QByteArray &data)
     //TransformStamped 类型为tf 发布时需要的类型
     geometry_msgs::msg::TransformStamped odom_trans;
     //时间戳
-    odom_trans.header.stamp = currentTime;
+    odom_trans.header.stamp = odom.header.stamp;
     //父参考坐标系 id
     odom_trans.header.frame_id = "odom";
     //子参考系 id
