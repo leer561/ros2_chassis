@@ -5,7 +5,6 @@
 #include "rclcpp/publisher.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/clock.hpp"
-#include "rcutils/time.h"
 
 //包含 tf 以及 nav_msgs 相关的头文件
 #include "tf2_ros/static_transform_broadcaster.h"
@@ -130,11 +129,8 @@ void PubDriver::getReadMsg(const QByteArray &data)
     pose *= pose_update;
 
     // publish the odometry message over ROS
-    rcutils_time_point_value_t now;
-
     nav_msgs::msg::Odometry odom;
-    odom.header.stamp.sec = RCL_NS_TO_S(now);
-    odom.header.stamp.nanosec = now - RCL_S_TO_NS(odom.header.stamp.sec);
+    odom.header.stamp = currentTime;
     odom.header.frame_id = "odom";
     odom.child_frame_id = "base_link";
     odom.pose.pose.position.x = pose.x();
